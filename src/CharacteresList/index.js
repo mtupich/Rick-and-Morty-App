@@ -1,20 +1,30 @@
 import { View, Text, StyleSheet, FlatList, Image } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+const imgTeste = require("../../assets/pictures/characterTesteImg.jpeg")
 
 export default function CharacteresList() {
 
     return(
         <SafeAreaView style={styles.header}>
-            <View>
                 <Text style={styles.title}>Characteres</Text>
                 <Text style={styles.subtitle}>Search for Rick & Morty characteres by name using filters</Text>
-
+                
                 <FlatList style={styles.list}
-                    // keyExtractor={item => item.name}
-                    // data={characteresListMock}
-                    // renderItem={({item}) => <CharacterItem character={item} />}
-                />
-            </View>
+                data={characteresListMock}
+                renderItem={({item}) => (
+                    <View style={[styles.card, styles.box]}>
+                        <Image style={styles.imageCharacter}
+                         source={imgTeste}
+                        />
+                        <View style={styles.info}>
+                            <Text style={styles.infoTitle}>{item.name}</Text>
+                            <Text>{item.aliveOrDead}</Text>
+                            <Text style={styles.infoTitle}>Last known location</Text>
+                            <Text>{item.lastPlaceSawed}</Text>
+                        </View>
+                        
+                    </View>
+                )}/>
         </SafeAreaView>
     )
 }
@@ -26,22 +36,57 @@ const styles= StyleSheet.create({
     },
     title:{
         fontSize: 28,
-        margin: 20,
+        margin: 24,
       },
       subtitle:{
         fontSize: 18,
         color: "rgba(168, 168, 168, 1)",
-        marginLeft: 20,
+        marginLeft: 24,
       },
       list:{
         flex:1,
-        backgroundColor: "yellow",
+        marginTop: 24,
+      },
+      imageCharacter:{
+        width: "33%",
+        height: "100%",
+        padding: 10,
+        borderRadius: 8,
+      },
+      card:{
+        borderWidth: 1,
+        borderColor: 'grey',
+        width: '90%',
+        flexDirection: 'row',
+        height: 130,
+        marginBottom: 16,
+        marginRight: 24,
+        marginLeft: 24,
+        borderRadius: 8,
+       },
+       info:{
+        padding: 10,
+       },
+       infoTitle:{
+        fontWeight: 'bold',
+       },
+       info:{
+
+       },
+       box: {
+        backgroundColor: 'white',
+        borderRadius: 10,
+        elevation: 5, // Somente Android
+        shadowColor: '#000', // Somente iOS
+        shadowOffset: { width: 0, height: 2 }, // Somente iOS
+        shadowOpacity: 0.4, // Somente iOS
+        shadowRadius: 2, // Somente iOS
       },
 })
 
-const imgTeste = require("../../assets/pictures/characterTesteImg.jpeg")
 
- export const characteresListMock = [
+
+const characteresListMock = [
     {
         name: "Quantum Rick",
         image: imgTeste,
