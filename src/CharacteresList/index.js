@@ -1,26 +1,63 @@
-import { View, Text, StyleSheet, FlatList, Image } from 'react-native'
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, FlatList, Image, TextInput } from 'react-native'
+import { SearchBar } from '@rneui/themed';
 import { SafeAreaView } from 'react-native-safe-area-context'
+import axios from 'axios';
+
 const imgTeste = require("../../assets/pictures/characterTesteImg.jpeg")
 
 export default function CharacteresList() {
+    const [arrayEmpty, setArrayData] = useState([]);
+
+    useEffect(() => {
+        getCharacteres();
+    }, []);
+
+    const [search, setSearch] = useState("");
+
+    const updateSearch = (search) => {
+        setSearch(search);
+    };
+
+    const getCharacteres = async () => {
+        try {
+            const response = await axios.get('https://rickandmortyapi.com/api/character');
+            const newArray = response.data.results;
+            setArrayData(newArray);
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    }
 
     return(
         <SafeAreaView style={styles.header}>
                 <Text style={styles.title}>Characteres</Text>
                 <Text style={styles.subtitle}>Search for Rick & Morty characteres by name using filters</Text>
                 
+                <View style={styles.viewSearch}>
+                    <SearchBar
+                    placeholder="What character are you looking for?"
+                    onChangeText={updateSearch}
+                    value={search}
+                    placeholderTextColor={'grey'}
+                    fontSize={14}
+                    lightTheme={true}
+                    backgroundColor={'lightgrey'}
+                    containerStyle={{ backgroundColor: 'white', borderBottomWidth: 0, borderTopWidth: 0 }}
+                    inputContainerStyle={{ borderRadius: 16, backgroundColor: 'lightgrey' }}
+                    />
+                </View>
+
                 <FlatList style={styles.list}
-                data={characteresListMock}
+                data={arrayEmpty}
                 renderItem={({item}) => (
                     <View style={[styles.card, styles.box]}>
-                        <Image style={styles.imageCharacter}
-                         source={imgTeste}
-                        />
+                        <Image style={styles.imageCharacter} source={{ uri: item.image }} />
                         <View style={styles.info}>
                             <Text style={styles.infoTitle}>{item.name}</Text>
-                            <Text>{item.aliveOrDead}</Text>
+                            <Text>{item.status}</Text>
                             <Text style={styles.infoTitle}>Last known location</Text>
-                            <Text>{item.lastPlaceSawed}</Text>
+                            <Text>{item.origin.name}</Text>
                         </View>
                         
                     </View>
@@ -65,13 +102,10 @@ const styles= StyleSheet.create({
         borderRadius: 8,
        },
        info:{
-        padding: 10,
+        marginLeft: 14,
        },
        infoTitle:{
         fontWeight: 'bold',
-       },
-       info:{
-
        },
        box: {
         backgroundColor: 'white',
@@ -82,64 +116,10 @@ const styles= StyleSheet.create({
         shadowOpacity: 0.4, // Somente iOS
         shadowRadius: 2, // Somente iOS
       },
+      viewSearch: {
+        marginLeft: 14,
+        marginRight: 14,
+      },
 })
 
-
-
-const characteresListMock = [
-    {
-        name: "Quantum Rick",
-        image: imgTeste,
-        aliveOrDead: "alive",
-        lastPlaceSawed: "Earth (Replacement Dimension)"
-    },
-    {
-        name: "Teste 1",
-        image: imgTeste,
-        aliveOrDead: "alive",
-        lastPlaceSawed: "Earth (Replacement Dimension)"
-    },
-    {
-        name: "Teste 2",
-        image: imgTeste,
-        aliveOrDead: "alive",
-        lastPlaceSawed: "Earth (Replacement Dimension)"
-    },
-    {
-        name: "Teste 3",
-        image: imgTeste,
-        aliveOrDead: "alive",
-        lastPlaceSawed: "Earth (Replacement Dimension)"
-    },
-    {
-        name: "Teste 4",
-        image: imgTeste,
-        aliveOrDead: "alive",
-        lastPlaceSawed: "Earth (Replacement Dimension)"
-    },
-    {
-        name: "Teste 5",
-        image: imgTeste,
-        aliveOrDead: "alive",
-        lastPlaceSawed: "Earth (Replacement Dimension)"
-    },
-    {
-        name: "Teste 6",
-        image: imgTeste,
-        aliveOrDead: "alive",
-        lastPlaceSawed: "Earth (Replacement Dimension)"
-    },
-    {
-        name: "Teste 7",
-        image: imgTeste,
-        aliveOrDead: "alive",
-        lastPlaceSawed: "Earth (Replacement Dimension)"
-    },
-    {
-        name: "Teste 8",
-        image: imgTeste,
-        aliveOrDead: "alive",
-        lastPlaceSawed: "Earth (Replacement Dimension)"
-    },
-];
 
