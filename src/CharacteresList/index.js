@@ -1,69 +1,72 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Image, TextInput } from 'react-native'
-import { SearchBar } from '@rneui/themed';
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { View, Text, StyleSheet, FlatList, Image, TextInput } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from 'axios';
-
-const imgTeste = require("../../assets/pictures/characterTesteImg.jpeg")
+import { Ionicons } from '@expo/vector-icons'; // Importe o pacote de ícones (assegure-se de instalá-lo)
 
 export default function CharacteresList() {
-    const [arrayEmpty, setArrayData] = useState([]);
+  const [allCharacters, setAllCharacters] = useState([]); // Store all characters
+  const [characters, setCharacters] = useState([]); // Displayed characters
+  const [searchQuery, setSearchQuery] = useState('');
 
-    useEffect(() => {
-        getCharacteres();
-    }, []);
+  useEffect(() => {
+    getCharacters();
+  }, []);
 
-    const [search, setSearch] = useState("");
-
-    const updateSearch = (search) => {
-        setSearch(search);
-    };
-
-    const getCharacteres = async () => {
-        try {
-            const response = await axios.get('https://rickandmortyapi.com/api/character');
-            const newArray = response.data.results;
-            setArrayData(newArray);
-        } catch (error) {
-            console.error("Error fetching data:", error);
-        }
+  const getCharacters = async () => {
+    try {
+      const response = await axios.get('https://rickandmortyapi.com/api/character');
+      const newArray = response.data.results;
+      setAllCharacters(newArray);
+      setCharacters(newArray);
+    } catch (error) {
+      console.error("Error fetching data:", error);
     }
+  }
 
-    return(
-        <SafeAreaView style={styles.header}>
-                <Text style={styles.title}>Characteres</Text>
-                <Text style={styles.subtitle}>Search for Rick & Morty characteres by name using filters</Text>
-                
-                <View style={styles.viewSearch}>
-                    <SearchBar
-                    placeholder="What character are you looking for?"
-                    onChangeText={updateSearch}
-                    value={search}
-                    placeholderTextColor={'grey'}
-                    fontSize={14}
-                    lightTheme={true}
-                    backgroundColor={'lightgrey'}
-                    containerStyle={{ backgroundColor: 'white', borderBottomWidth: 0, borderTopWidth: 0 }}
-                    inputContainerStyle={{ borderRadius: 16, backgroundColor: 'lightgrey' }}
-                    />
-                </View>
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    // Perform filtering based on the search query
+    const filteredCharacters = allCharacters.filter(
+      character => character.name.toLowerCase().includes(query.toLowerCase())
+    );
+    setCharacters(filteredCharacters);
+  }
 
-                <FlatList style={styles.list}
-                data={arrayEmpty}
-                renderItem={({item}) => (
-                    <View style={[styles.card, styles.box]}>
-                        <Image style={styles.imageCharacter} source={{ uri: item.image }} />
-                        <View style={styles.info}>
-                            <Text style={styles.infoTitle}>{item.name}</Text>
-                            <Text>{item.status}</Text>
-                            <Text style={styles.infoTitle}>Last known location</Text>
-                            <Text>{item.origin.name}</Text>
-                        </View>
-                        
-                    </View>
-                )}/>
-        </SafeAreaView>
-    )
+  return (
+    <SafeAreaView style={styles.header}>
+      <Text style={styles.title}>Characters</Text>
+      <Text style={styles.subtitle}>Search for Rick & Morty characters by name using filters</Text>
+
+        <View style={styles.searchContainer}>
+        <Ionicons name="md-search" size={24} color="black" style={styles.searchIcon} />
+        <TextInput
+            style={styles.search}
+            placeholder='What character are you looking for?'
+            value={searchQuery}
+            onChangeText={handleSearch}
+        />
+        </View>
+    
+
+      <FlatList
+        style={styles.list}
+        data={characters}
+        renderItem={({ item }) => (
+          <View style={[styles.card, styles.box]}>
+            <Image style={styles.imageCharacter} source={{ uri: item.image }} />
+            <View style={styles.info}>
+              <Text style={styles.infoTitle}>{item.name}</Text>
+              <Text>{item.status}</Text>
+              <Text style={styles.infoTitle}>Last known location</Text>
+              <Text>{item.origin.name}</Text>
+            </View>
+          </View>
+        )}
+        keyExtractor={(item) => item.id.toString()}
+      />
+    </SafeAreaView>
+  );
 }
 
 const styles= StyleSheet.create({
@@ -116,9 +119,22 @@ const styles= StyleSheet.create({
         shadowOpacity: 0.4, // Somente iOS
         shadowRadius: 2, // Somente iOS
       },
-      viewSearch: {
-        marginLeft: 14,
-        marginRight: 14,
+      searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginLeft: 24,
+        marginRight: 24,
+        marginTop: 24,
+        borderColor: "#ccc",
+        borderWidth: 1,
+        borderRadius: 8,
+        padding: 12,
+      },
+      searchIcon: {
+        marginRight: 10,
+      },
+      search: {
+        flex: 1,
       },
 })
 
