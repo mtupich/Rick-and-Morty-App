@@ -21,14 +21,24 @@ export default function App() {
           name="CharacteresList"
           component={CharacteresListScreen}
           options={{
-            headerShown: false,
+              headerStyle: {
+                backgroundColor: 'transparent',
+                shadowOpacity: 0, 
+                elevation: 0,
+              },
+              headerTitle: '', 
           }}
         />
           <Stack.Screen 
           name="CharacterDetail"
           component={CharacterDetailScreen}
           options={{
-            headerShown: false,
+            headerStyle: {
+              backgroundColor: 'transparent',
+              shadowOpacity: 0, 
+              elevation: 0,
+            },
+            headerTitle: '', 
           }}
         />
       </Stack.Navigator>

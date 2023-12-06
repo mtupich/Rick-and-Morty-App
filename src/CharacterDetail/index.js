@@ -10,7 +10,8 @@ export default function CharacterDetail({ route }) {
     const { character } = route.params;
     const [episodes, setEpisodes] = useState([]);
     const [isFavorite, setFavorite] = useState(false);
-    const emptyArray = [];
+    const [isAlive, setIsAlive] = useState(false);
+    const [isLoading, setIsLoading] = useState(true); // Novo estado
     
     const toggleFavorite = () => {
         setFavorite(!isFavorite);
@@ -20,7 +21,6 @@ export default function CharacterDetail({ route }) {
     const lastSlashIndex = url.lastIndexOf('/');
     return url.substring(lastSlashIndex + 1);
     });
-    
 
     const getEpisodes = async () => {
         try {
@@ -30,42 +30,64 @@ export default function CharacterDetail({ route }) {
             const response = await axios.get(url);
             const episodesData = response.data;
     
-            episodesData.forEach(item => {
-                emptyArray.push({ episode: item.episode, name: item.name });
-              });
-        
+            if (Array.isArray(episodesData)) {
+                setEpisodes(episodesData);
+            } else {
+                console.error("episodesData is not an array");
+                setEpisodes([episodesData]);
+            }
+    
+            setIsLoading(false);
         } catch (error) {
             console.error("Error fetching data:", error);
+            setIsLoading(false);
         }
-    }    
+    };
+    
     
     useEffect(() => {
+        setIsLoading(true)
         getEpisodes(); 
+        if (character.status.toLowerCase() === "dead") {
+            setIsAlive(false)
+        } else {
+            setIsAlive(true)
+        }         
     }, []);
+
+
+    if (isLoading) {
+        // Renderiza algo enquanto os dados estão sendo carregados
+        return (
+            <View>
+                <Text>Loading...</Text>
+            </View>
+        );
+    }
 
     return (
 
         <View style={styles.header}>
-            <SafeAreaView  style={styles.header}>
             <View style={styles.imageBox}>
                  <Image style={styles.imageCharacter} source={{ uri: character.image }} />
             </View>
-            </SafeAreaView>
 
             <ScrollView style={styles.informationBox}>
 
                 <View>
-                    <View style={styles.alignment}>
-                        <Text style={styles.boldTextTitle}>{character.name}</Text>
 
-                        <TouchableOpacity>
+                    <View style={styles.alignment}>
+                        <View style={{ flex: 1 }}>
+                            <Text style={styles.boldTextTitle}>{character.name}</Text>
+                        </View>
+                        <TouchableOpacity onPress={toggleFavorite} style={{ marginRight: 24 }}>
                             <FontAwesome name={isFavorite ? 'heart' : 'heart-o'} size={30} color={isFavorite ? 'red' : 'black'} />
                         </TouchableOpacity>
                     </View>
 
 
                     <View style={styles.alignment}>
-                        <Icon name="fiber-manual-record" size={20} color="red" />
+                        <Icon name="fiber-manual-record" size={20} color={ isAlive ? "green" : "red" } style={{ marginRight: 12 }} />
                         <Text style={styles.regularLettering}>{character.status}</Text>
                     </View>
 
@@ -89,25 +111,16 @@ export default function CharacterDetail({ route }) {
 
                 <View>
                     <Text style={[styles.boldTextSubtitles, styles.titleMargin]}>Episodes</Text>
-
-                    <FlatList
+                        <FlatList
                             style={styles.list}
-                            data={emptyArray}
+                            data={episodes}
                             renderItem={({ item }) => (
                                 <View style={styles.alignment}>
-                                   <View>
-                                     <Text>{item.episode}: {item.name}</Text>
-                                   </View>
-
-                                   <View>
-                                    <Text>{item.nomeEpisodio}</Text>
-                                   </View>
+                                    <Text style={styles.episodeNumber}>{item.episode}: </Text>
+                                    <Text style={styles.regularLettering}>{item.name}</Text>
                                 </View>
-
-
-                                
-                            )}                            
-                            keyExtractor={(item) => item.toString()}
+                            )}
+                            keyExtractor={(item) => item.episode.toString()}
                         />
                 </View>
             </ScrollView>
@@ -120,7 +133,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     imageBox: {
-        flex: 4,
+        flex: 1,
         height: '40%', 
     },
     informationBox: {
@@ -142,7 +155,7 @@ const styles = StyleSheet.create({
         fontSize: 22,
         color: 'black',
         fontWeight: 'bold',
-        paddingVertical: 12,
+        paddingVertical: 6,
     },
     regularLettering: {
         fontSize: 20,
@@ -165,9 +178,6 @@ const styles = StyleSheet.create({
     },
     list:{
         marginTop: 24,
-        backgroundColor: 'pink',
-        // paddingVertical: 12,
-
       },
       imageCharacter:{
         width: "100%",
@@ -175,8 +185,33 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 8,
       },
+      episodeNumber: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: "rgba(88, 108, 54, 1)"
+      },
 });
 
+const mockEpiseodesData= [
+        {"episode": "S01E01", "name": "Pilot"}, 
+        {"episode": "S01E02", "name": "Lawnmower Dog"}, 
+        {"episode": "S01E03", "name": "Anatomy Park"}, 
+        {"episode": "S01E04", "name": "M. Night Shaym-Aliens!"},
+         {"episode": "S01E05", "name": "Meeseeks and Destroy"}, 
+         {"episode": "S01E06", "name": "Rick Potion #9"},
+        {"episode": "S01E07", "name": "Raising Gazorpazorp"}, 
+        {"episode": "S01E08", "name": "Rixty Minutes"}, 
+        {"episode": "S01E09", "name": "Something Ricked This Way Comes"}, 
+        {"episode": "S01E10", "name": "Close Rick-counters of the Rick Kind"},
+        {"episode": "S01E11", "name": "Ricksy Business"}, 
+        {"episode": "S02E01", "name": "A Rickle in Time"}, 
+        {"episode": "S02E02", "name": "Mortynight Run"},
+        {"episode": "S02E03", "name": "Auto Erotic Assimilation"}, 
+        {"episode": "S02E04", "name": "Total Rickall"},
+        {"episode": "S02E05", "name": "Get Schwifty"},
+        {"episode": "S02E06", "name": "The Ricks Must Be Crazy"}
+     ];
+    
 
 
 

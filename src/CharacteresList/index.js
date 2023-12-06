@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, Image, TextInput, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from 'axios';
-import { Ionicons } from '@expo/vector-icons'; // Importe o pacote de ícones (assegure-se de instalá-lo)
+import { Ionicons } from '@expo/vector-icons';
 
 export default function CharacteresList({ navigation }) {
   const [allCharacters, setAllCharacters] = useState([]); 
@@ -33,13 +33,12 @@ export default function CharacteresList({ navigation }) {
   }
 
   const handleDetail = (item) => {
-    console.log("passei aqui" + item)
     navigation.navigate('CharacterDetail', { character: item });
   };
   
 
   return (
-    <SafeAreaView style={styles.header}>
+    <View style={styles.header}>
       <Text style={styles.title}>Characters</Text>
       <Text style={styles.subtitle}>Search for Rick & Morty characters by name using filters</Text>
 
@@ -71,7 +70,7 @@ export default function CharacteresList({ navigation }) {
         )}
         keyExtractor={(item) => item.id.toString()}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
