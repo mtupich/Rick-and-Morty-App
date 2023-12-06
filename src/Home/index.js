@@ -5,7 +5,6 @@ import img from "../../assets/pictures/rick-and-morty-portal.png"
 export default function Home({ navigation }) {
 
   function handlePress() {
-    console.log("passei aqui")
     navigation.navigate('CharacteresList');
   }
 

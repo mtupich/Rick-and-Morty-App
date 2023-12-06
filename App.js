@@ -1,5 +1,6 @@
 import HomeScreen from "./src/Home/";
 import CharacteresListScreen from "./src/CharacteresList/";
+import CharacterDetailScreen from "./src/CharacterDetail/";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
@@ -19,6 +20,13 @@ export default function App() {
         <Stack.Screen 
           name="CharacteresList"
           component={CharacteresListScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+          <Stack.Screen 
+          name="CharacterDetail"
+          component={CharacterDetailScreen}
           options={{
             headerShown: false,
           }}

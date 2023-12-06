@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Image, TextInput } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Image, TextInput, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from 'axios';
 import { Ionicons } from '@expo/vector-icons'; // Importe o pacote de ícones (assegure-se de instalá-lo)
 
-export default function CharacteresList() {
-  const [allCharacters, setAllCharacters] = useState([]); // Store all characters
-  const [characters, setCharacters] = useState([]); // Displayed characters
+export default function CharacteresList({ navigation }) {
+  const [allCharacters, setAllCharacters] = useState([]); 
+  const [characters, setCharacters] = useState([]); 
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
@@ -26,12 +26,17 @@ export default function CharacteresList() {
 
   const handleSearch = (query) => {
     setSearchQuery(query);
-    // Perform filtering based on the search query
     const filteredCharacters = allCharacters.filter(
       character => character.name.toLowerCase().includes(query.toLowerCase())
     );
     setCharacters(filteredCharacters);
   }
+
+  const handleDetail = (item) => {
+    console.log("passei aqui" + item)
+    navigation.navigate('CharacterDetail', { character: item });
+  };
+  
 
   return (
     <SafeAreaView style={styles.header}>
@@ -47,12 +52,12 @@ export default function CharacteresList() {
             onChangeText={handleSearch}
         />
         </View>
-    
 
       <FlatList
         style={styles.list}
         data={characters}
         renderItem={({ item }) => (
+          <TouchableOpacity onPress={() => handleDetail(item)}>
           <View style={[styles.card, styles.box]}>
             <Image style={styles.imageCharacter} source={{ uri: item.image }} />
             <View style={styles.info}>
@@ -62,6 +67,7 @@ export default function CharacteresList() {
               <Text>{item.origin.name}</Text>
             </View>
           </View>
+          </TouchableOpacity>
         )}
         keyExtractor={(item) => item.id.toString()}
       />
