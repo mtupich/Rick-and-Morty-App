@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, Image, TextInput, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import axios from 'axios';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -35,12 +36,20 @@ export default function CharacteresList({ navigation }) {
   const handleDetail = (item) => {
     navigation.navigate('CharacterDetail', { character: item });
   };
-  
 
+  const handleFavorites = () => {
+    navigation.navigate('Favorites');
+    console.log("PASSEI AQUI PRA IR PRA TELA DE FAVORITOS")
+  };
+  
   return (
     <View style={styles.header}>
       <Text style={styles.title}>Characters</Text>
       <Text style={styles.subtitle}>Search for Rick & Morty characters by name using filters</Text>
+
+      <TouchableOpacity onPress={handleFavorites} style={{ marginRight: 24 }}>
+        <FontAwesome name='heart' size={30} color='rgba(88, 108, 54, 1)'/>
+      </TouchableOpacity>
 
         <View style={styles.searchContainer}>
         <Ionicons name="md-search" size={24} color="black" style={styles.searchIcon} />

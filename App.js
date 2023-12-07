@@ -1,6 +1,7 @@
 import HomeScreen from "./src/Home/";
 import CharacteresListScreen from "./src/CharacteresList/";
 import CharacterDetailScreen from "./src/CharacterDetail/";
+import FavoritesScreen from "./src/Favorites/";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
@@ -39,6 +40,18 @@ export default function App() {
               elevation: 0,
             },
             headerTitle: '', 
+          }}
+        />
+          <Stack.Screen 
+          name="Favorites"
+          component={FavoritesScreen}
+          options={{
+              headerStyle: {
+                backgroundColor: 'transparent',
+                shadowOpacity: 0, 
+                elevation: 0,
+              },
+              headerTitle: '', 
           }}
         />
       </Stack.Navigator>
