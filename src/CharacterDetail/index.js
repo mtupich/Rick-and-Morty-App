@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -12,7 +12,7 @@ export default function CharacterDetail({ route }) {
     const [episodes, setEpisodes] = useState([]);
     const [isFavorite, setFavorite] = useState(false);
     const [isAlive, setIsAlive] = useState(false);
-    const [isLoading, setIsLoading] = useState(true); // Novo estado
+    const [isLoading, setIsLoading] = useState(false); 
     
     const toggleFavorite = () => {
         setFavorite(!isFavorite);
@@ -24,12 +24,21 @@ export default function CharacterDetail({ route }) {
         }
       };
 
+    const LoadingOverlay = () => (
+    <View style={styles.overlay}>
+        <View style={styles.overlayContent}>
+        <ActivityIndicator size="large" color="black" />
+        </View>
+    </View>
+    );
+
     const extractedValues = character.episode.map((url) => {
     const lastSlashIndex = url.lastIndexOf('/');
     return url.substring(lastSlashIndex + 1);
     });
 
     const getEpisodes = async () => {
+        setIsLoading(true)
         try {
             const episodeIds = extractedValues.join(',');
             const url = `https://rickandmortyapi.com/api/episode/${episodeIds}`;
@@ -65,6 +74,7 @@ export default function CharacterDetail({ route }) {
             // converter a lista atualizada para uma string JSON
             const updatedListCharactersString = JSON.stringify(currentListCharacters);
             // salva a lista atualizada na AsyncStorage
+            console.log("passei aqui 4");
             await AsyncStorage.setItem('listaDePersonagens', updatedListCharactersString);
             console.log(updatedListCharactersString)
         } catch (error) {
@@ -73,23 +83,28 @@ export default function CharacterDetail({ route }) {
       };
     
       const clearStoredData = async () => {
-        console.log("passei aqui no clear stored")
             try {
-                await AsyncStorage.removeItem('listaDePersonagens');
-                console.log("Dados removidos com sucesso!");
+                const characterIdToCheck = character.id;
+                const value = await AsyncStorage.getItem('listaDePersonagens');
+                if (value !== null) {
+                    const storedCharacters = JSON.parse(value);
+                    const updatedListCharacters = storedCharacters.filter(
+                        (storedCharacter) => storedCharacter.id !== characterIdToCheck
+                    );
+                    await AsyncStorage.setItem('listaDePersonagens', JSON.stringify(updatedListCharacters));
+        
+                    console.log("Dados removidos com sucesso!");
+                }
             } catch (error) {
                 console.log("Erro ao remover os dados:", error);
             }
         };
-
+    
         const getData = async () => {
             try {
                 const value = await AsyncStorage.getItem('listaDePersonagens');
                 if (value !== null) {
-                    // value previously stored
                     const storedCharacters = JSON.parse(value);
-        
-                    // Aqui você pode verificar se o ID do personagem existe na lista
                     const characterIdToCheck = character.id;
                     const characterExists = storedCharacters.some((storedCharacter) => storedCharacter.id === characterIdToCheck);
         
@@ -108,7 +123,6 @@ export default function CharacterDetail({ route }) {
     
     
     useEffect(() => {
-        setIsLoading(true)
         getData()
         getEpisodes(); 
         if (character.status.toLowerCase() === "dead") {
@@ -118,19 +132,10 @@ export default function CharacterDetail({ route }) {
         }         
     }, []);
 
-
-    if (isLoading) {
-        // Renderiza algo enquanto os dados estão sendo carregados
-        return (
-            <View>
-                <Text>Loading...</Text>
-            </View>
-        );
-    }
-
     return (
 
         <View style={styles.header}>
+            {isLoading && <LoadingOverlay />}  
             <View style={styles.imageBox}>
                  <Image style={styles.imageCharacter} source={{ uri: character.image }} />
             </View>
@@ -206,6 +211,7 @@ const styles = StyleSheet.create({
         borderColor: 'grey',
         padding: 12,
         marginTop: '-10%',
+        marginBottom: '-10%',
         backgroundColor: 'white',
     },
     boldTextTitle: {
@@ -252,6 +258,18 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
         color: "rgba(88, 108, 54, 1)"
+      },
+      overlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(255, 255, 255, 0.8)', // Branco translúcido
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      
+      overlayContent: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
       },
 });
 

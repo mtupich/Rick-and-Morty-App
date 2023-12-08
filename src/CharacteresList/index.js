@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Image, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Image, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import axios from 'axios';
@@ -9,18 +9,30 @@ export default function CharacteresList({ navigation }) {
   const [allCharacters, setAllCharacters] = useState([]); 
   const [characters, setCharacters] = useState([]); 
   const [searchQuery, setSearchQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     getCharacters();
   }, []);
 
+  const LoadingOverlay = () => (
+    <View style={styles.overlay}>
+      <View style={styles.overlayContent}>
+        <ActivityIndicator size="large" color="black" />
+      </View>
+    </View>
+  );
+
   const getCharacters = async () => {
+    setIsLoading(true)
     try {
       const response = await axios.get('https://rickandmortyapi.com/api/character');
       const newArray = response.data.results;
       setAllCharacters(newArray);
       setCharacters(newArray);
+      setIsLoading(false)
     } catch (error) {
+      setIsLoading(true)
       console.error("Error fetching data:", error);
     }
   }
@@ -43,44 +55,44 @@ export default function CharacteresList({ navigation }) {
   
   return (
     <View style={styles.header}>
+      {isLoading && <LoadingOverlay />}     
+      <View style={styles.aligment}>
+        <Text style={styles.title}>Characters</Text>
+        <TouchableOpacity onPress={handleFavorites} style={{ marginTop: 24, marginLeft: 140 }}>
+          <FontAwesome name='heart' size={30} color='rgba(88, 108, 54, 1)'/>
+        </TouchableOpacity>
+      </View>
 
-    <View style={styles.aligment}>
-      <Text style={styles.title}>Characters</Text>
-      <TouchableOpacity onPress={handleFavorites} style={{ marginTop: 24, marginLeft: 140 }}>
-        <FontAwesome name='heart' size={30} color='rgba(88, 108, 54, 1)'/>
-      </TouchableOpacity>
-    </View>
+        <Text style={styles.subtitle}>Search for Rick & Morty characters by name using filters</Text>
 
-      <Text style={styles.subtitle}>Search for Rick & Morty characters by name using filters</Text>
-
-        <View style={styles.searchContainer}>
-        <Ionicons name="md-search" size={24} color="black" style={styles.searchIcon} />
-        <TextInput
-            style={styles.search}
-            placeholder='What character are you looking for?'
-            value={searchQuery}
-            onChangeText={handleSearch}
-        />
-        </View>
-
-      <FlatList
-        style={styles.list}
-        data={characters}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => handleDetail(item)}>
-          <View style={[styles.card, styles.box]}>
-            <Image style={styles.imageCharacter} source={{ uri: item.image }} />
-            <View style={styles.info}>
-              <Text style={styles.infoTitle}>{item.name}</Text>
-              <Text>{item.status}</Text>
-              <Text style={styles.infoTitle}>Last known location</Text>
-              <Text>{item.origin.name}</Text>
-            </View>
+          <View style={styles.searchContainer}>
+          <Ionicons name="md-search" size={24} color="black" style={styles.searchIcon} />
+          <TextInput
+              style={styles.search}
+              placeholder='What character are you looking for?'
+              value={searchQuery}
+              onChangeText={handleSearch}
+          />
           </View>
-          </TouchableOpacity>
-        )}
-        keyExtractor={(item) => item.id.toString()}
-      />
+
+        <FlatList
+          style={styles.list}
+          data={characters}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => handleDetail(item)}>
+            <View style={[styles.card, styles.box]}>
+              <Image style={styles.imageCharacter} source={{ uri: item.image }} />
+              <View style={styles.info}>
+                <Text style={styles.infoTitle}>{item.name}</Text>
+                <Text>{item.status}</Text>
+                <Text style={styles.infoTitle}>Last known location</Text>
+                <Text>{item.origin.name}</Text>
+              </View>
+            </View>
+            </TouchableOpacity>
+          )}
+          keyExtractor={(item) => item.id.toString()}
+        />
     </View>
   );
 }
@@ -154,7 +166,19 @@ const styles= StyleSheet.create({
       },
       aligment: {
         flexDirection: 'row',
-      }
+      }, 
+      overlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(255, 255, 255, 0.8)', // Branco translúcido
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      
+      overlayContent: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+      },
 })
 
 
