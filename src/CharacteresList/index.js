@@ -39,17 +39,19 @@ export default function CharacteresList({ navigation }) {
 
   const handleFavorites = () => {
     navigation.navigate('Favorites');
-    console.log("PASSEI AQUI PRA IR PRA TELA DE FAVORITOS")
   };
   
   return (
     <View style={styles.header}>
-      <Text style={styles.title}>Characters</Text>
-      <Text style={styles.subtitle}>Search for Rick & Morty characters by name using filters</Text>
 
-      <TouchableOpacity onPress={handleFavorites} style={{ marginRight: 24 }}>
+    <View style={styles.aligment}>
+      <Text style={styles.title}>Characters</Text>
+      <TouchableOpacity onPress={handleFavorites} style={{ marginTop: 24, marginLeft: 140 }}>
         <FontAwesome name='heart' size={30} color='rgba(88, 108, 54, 1)'/>
       </TouchableOpacity>
+    </View>
+
+      <Text style={styles.subtitle}>Search for Rick & Morty characters by name using filters</Text>
 
         <View style={styles.searchContainer}>
         <Ionicons name="md-search" size={24} color="black" style={styles.searchIcon} />
@@ -150,6 +152,9 @@ const styles= StyleSheet.create({
       search: {
         flex: 1,
       },
+      aligment: {
+        flexDirection: 'row',
+      }
 })
 
 

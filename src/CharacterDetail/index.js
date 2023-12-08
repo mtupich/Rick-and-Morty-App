@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { Image } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 export default function CharacterDetail({ route }) {
@@ -15,6 +16,12 @@ export default function CharacterDetail({ route }) {
     
     const toggleFavorite = () => {
         setFavorite(!isFavorite);
+
+        if(isFavorite) {
+            clearStoredData()
+        } else {
+            storeData()
+        }
       };
 
     const extractedValues = character.episode.map((url) => {
@@ -44,9 +51,65 @@ export default function CharacterDetail({ route }) {
         }
     };
     
+    const storeData = async () => {
+        try {
+            const { id, name, image } = character;
+            const formattedCharacter = { id, name, image };
+
+            // recupera a lista de personagens persistidos
+            const currentListCharactersString = await AsyncStorage.getItem('listaDePersonagens');
+            // se a lista atual tiver dados faça o parse se não array vazio
+            const currentListCharacters = currentListCharactersString ? JSON.parse(currentListCharactersString) : [];
+            // adiciona a lista existente
+            currentListCharacters.push(formattedCharacter)
+            // converter a lista atualizada para uma string JSON
+            const updatedListCharactersString = JSON.stringify(currentListCharacters);
+            // salva a lista atualizada na AsyncStorage
+            await AsyncStorage.setItem('listaDePersonagens', updatedListCharactersString);
+            console.log(updatedListCharactersString)
+        } catch (error) {
+          console.log(error)
+        }
+      };
+    
+      const clearStoredData = async () => {
+        console.log("passei aqui no clear stored")
+            try {
+                await AsyncStorage.removeItem('listaDePersonagens');
+                console.log("Dados removidos com sucesso!");
+            } catch (error) {
+                console.log("Erro ao remover os dados:", error);
+            }
+        };
+
+        const getData = async () => {
+            try {
+                const value = await AsyncStorage.getItem('listaDePersonagens');
+                if (value !== null) {
+                    // value previously stored
+                    const storedCharacters = JSON.parse(value);
+        
+                    // Aqui você pode verificar se o ID do personagem existe na lista
+                    const characterIdToCheck = character.id;
+                    const characterExists = storedCharacters.some((storedCharacter) => storedCharacter.id === characterIdToCheck);
+        
+                    if (characterExists) {
+                        setFavorite(true)
+                    } else {
+                        setFavorite(false)
+                    }
+                }
+            } catch (error) {
+                // error reading value
+                console.error('Erro ao ler dados:', error);
+            }
+        };
+        
+    
     
     useEffect(() => {
         setIsLoading(true)
+        getData()
         getEpisodes(); 
         if (character.status.toLowerCase() === "dead") {
             setIsAlive(false)
@@ -191,27 +254,4 @@ const styles = StyleSheet.create({
         color: "rgba(88, 108, 54, 1)"
       },
 });
-
-const mockEpiseodesData= [
-        {"episode": "S01E01", "name": "Pilot"}, 
-        {"episode": "S01E02", "name": "Lawnmower Dog"}, 
-        {"episode": "S01E03", "name": "Anatomy Park"}, 
-        {"episode": "S01E04", "name": "M. Night Shaym-Aliens!"},
-         {"episode": "S01E05", "name": "Meeseeks and Destroy"}, 
-         {"episode": "S01E06", "name": "Rick Potion #9"},
-        {"episode": "S01E07", "name": "Raising Gazorpazorp"}, 
-        {"episode": "S01E08", "name": "Rixty Minutes"}, 
-        {"episode": "S01E09", "name": "Something Ricked This Way Comes"}, 
-        {"episode": "S01E10", "name": "Close Rick-counters of the Rick Kind"},
-        {"episode": "S01E11", "name": "Ricksy Business"}, 
-        {"episode": "S02E01", "name": "A Rickle in Time"}, 
-        {"episode": "S02E02", "name": "Mortynight Run"},
-        {"episode": "S02E03", "name": "Auto Erotic Assimilation"}, 
-        {"episode": "S02E04", "name": "Total Rickall"},
-        {"episode": "S02E05", "name": "Get Schwifty"},
-        {"episode": "S02E06", "name": "The Ricks Must Be Crazy"}
-     ];
-    
-
-
 

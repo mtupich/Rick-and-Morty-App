@@ -15,10 +15,7 @@ export default function Home({ navigation }) {
         style={styles.logo}
       />
       <Text style={styles.title}>Welcome!</Text>
-      <Text style={styles.subtitle}>Sed ut perspiciatis unde omnis iste natus error sit voluptatem
-         accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae
-         ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt
-         explicabo.</Text>
+      <Text style={styles.subtitle}>In this app you will have access to about hundreds of characteres, images, location and episodes about the TV show Rick and Morty.</Text>
          <TouchableOpacity style={[styles.button]} onPress={handlePress}>
           <Text style={styles.buttonText}>See characteres</Text> 
         </TouchableOpacity> 
